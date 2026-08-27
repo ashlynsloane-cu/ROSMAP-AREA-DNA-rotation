@@ -1,3 +1,16 @@
+# Ignore heavy raw data files (keeps them local, safe, and off GitHub)
+data/
+
+# Ignore local output results and plots
+results/
+processed_data/
+visualizations/
+
+# Ignore Python environment and Mac system files
+.venv/
+__pycache__/
+.DS_Store
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
