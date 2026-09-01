@@ -1,24 +1,17 @@
 #!/usr/bin/env python3
 """
-align_rosmap_clinical_v3.py
+align_rosmap_clinical.py
 ======================================================================
-ROSMAP Clinical Excel Alignment & Longitudinal Aggregation Script (v3)
+ROSMAP Clinical Integration & Double-Hop ID Alignment Pipeline
 ----------------------------------------------------------------------
-This script robustly integrates your offline clinical Excel files:
+This script bridges your de-identified local clinical Excel files:
   1. data/dataset_1731_cross-sectional_07-30-2026.xlsx
   2. data/dataset_1731_long_07-30-2026.xlsx
 
 With your active genomic metadata:
   - data/ROSMAP_metadata_merged_AREA.csv
 
-UPDATED FOR DATASET 1731 SCHEMAS:
-This version directly supports the exact column headers of your 1731 dataset:
-  - Global Cognition: 'cogn_global'
-  - MMSE Score: 'cts_estmmse30'
-  - Stroke: 'r_stroke' / 'stroke_cum'
-  - Diabetes: 'diabetes_sr_rx'
-  - Hypertension: 'hypertension_cum'
-  - Age at First AD Diagnosis: 'age_first_ad_dx' (pulled from cross-sectional)
+By leveraging ROSMAP_clinical.csv as the ID translation bridge!
 ======================================================================
 """
 
@@ -54,17 +47,22 @@ def discover_column(df, candidates, name_for_log):
 
 def main():
     print("======================================================================")
-    print("Starting ROSMAP Clinical Alignment Pipeline (v3 - Dataset 1731)")
+    print("Starting ROSMAP Clinical Alignment Pipeline (Double-Hop ID Bridge)")
     print("======================================================================")
 
-    # 1. SETUP PATHS (Adjusted for your 'data/' folder)
+    # 1. SETUP PATHS
     cross_path = "data/dataset_1731_cross-sectional_07-30-2026.xlsx"
     long_path = "data/dataset_1731_long_07-30-2026.xlsx"
+    bridge_path = "ROSMAP_clinical.csv"
     meta_path = "data/ROSMAP_metadata_merged_AREA.csv"
+
+    # Fallback search for bridge_path in data/ if not in root
+    if not os.path.exists(bridge_path) and os.path.exists("data/" + bridge_path):
+        bridge_path = "data/" + bridge_path
 
     # Check for files
     missing_files = []
-    for path in [cross_path, long_path, meta_path]:
+    for path in [cross_path, long_path, bridge_path, meta_path]:
         if not os.path.exists(path):
             missing_files.append(path)
 
@@ -72,8 +70,7 @@ def main():
         print("\nError: The following required files were not found in your directory:")
         for mf in missing_files:
             print(f"  * '{mf}'")
-        print("\nPlease ensure you have copied the Excel files directly into your")
-        print("ROSMAP-AREA-DNA-rotation/data/ directory before running this script.")
+        print("\nPlease ensure you have placed your files in the correct folders before running.")
         sys.exit(1)
 
     # 2. LOAD DATA
@@ -81,114 +78,120 @@ def main():
     cross_df = pd.read_excel(cross_path)
     print(f"Loading longitudinal data from: {long_path}...")
     long_df = pd.read_excel(long_path)
+    print(f"Loading ID Bridge file from: {bridge_path}...")
+    bridge_df = pd.read_csv(bridge_path)
     print(f"Loading active genomic metadata from: {meta_path}...")
     meta_df = pd.read_csv(meta_path)
 
     # 3. DISCOVER ID COLUMNS
     cross_id_col = discover_column(cross_df, [['projid', 'individual_id', 'subject_id']], "Cross-sectional Participant ID")
     long_id_col = discover_column(long_df, [['projid', 'individual_id', 'subject_id']], "Longitudinal Participant ID")
-    meta_id_col = discover_column(meta_df, [['individual_id', 'projid', 'subject_id']], "Genomic Metadata Participant ID")
+    bridge_projid_col = discover_column(bridge_df, [['projid']], "Bridge Participant projid")
+    bridge_indid_col = discover_column(bridge_df, [['individualID', 'individual_id']], "Bridge Genomic individualID")
+    meta_indid_col = discover_column(meta_df, [['individual_id', 'individualID']], "Genomic Metadata individual_id")
 
-    if not cross_id_col or not long_id_col or not meta_id_col:
-        print("\nError: Could not identify matching participant ID columns.")
+    if not all([cross_id_col, long_id_col, bridge_projid_col, bridge_indid_col, meta_indid_col]):
+        print("\nError: Could not identify matching participant ID columns in one or more files.")
         sys.exit(1)
 
-    # Normalize ID columns to strings for perfect matching
-    cross_df['clean_id'] = cross_df[cross_id_col].apply(clean_id_to_string)
-    long_df['clean_id'] = long_df[long_id_col].apply(clean_id_to_string)
-    meta_df['clean_id'] = meta_df[meta_id_col].apply(clean_id_to_string)
+    # Clean IDs to normalized integer strings for perfect matching
+    cross_df['clean_projid'] = cross_df[cross_id_col].apply(clean_id_to_string)
+    long_df['clean_projid'] = long_df[long_id_col].apply(clean_id_to_string)
+    bridge_df['clean_projid'] = bridge_df[bridge_projid_col].apply(clean_id_to_string)
+    
+    # Keep bridge translation
+    id_map = bridge_df[['clean_projid', bridge_indid_col]].dropna()
+    id_map = id_map.rename(columns={bridge_indid_col: 'individual_id_mapped'})
+    id_map['clean_ind_id'] = id_map['individual_id_mapped'].apply(clean_id_to_string)
+    # Deduplicate to prevent fan-out
+    id_map = id_map.drop_duplicates(subset=['clean_projid'])
 
     # 4. PROCESS LONGITUDINAL TRAITS
     print("\nProcessing longitudinal variables...")
-    
-    # Sort longitudinal data by participant and visit to ensure proper timeline
     visit_col = discover_column(long_df, [['fu_year', 'visit', 'cycle', 'age_at_visit']], "Longitudinal Visit/Time")
     if visit_col:
-        long_df = long_df.sort_values(by=['clean_id', visit_col])
+        long_df = long_df.sort_values(by=['clean_projid', visit_col])
     else:
         print("  -> Warning: Time/visit column not found. Processing based on sheet row order.")
 
-    # A. Last Valid (_lv) continuous scores (average cognitive z-score, mmse, bmi)
-    # Mapping exact columns from your dataset 1731 list!
     cog_col = discover_column(long_df, [['cogn_global', 'cogng_global', 'global_cognition']], "Global Cognition")
     mmse_col = discover_column(long_df, [['cts_estmmse30', 'mmse', 'mmse_lv']], "MMSE Score")
     bmi_col = discover_column(long_df, [['bmi', 'bmi_lv']], "Body Mass Index")
 
-    # B. Ever-reported binary history columns (diabetes, stroke, hypertension)
     stroke_col = discover_column(long_df, [['r_stroke', 'stroke_cum', 'stroke']], "Stroke History")
     diab_col = discover_column(long_df, [['diabetes_sr_rx', 'diab', 'diabetes']], "Diabetes History")
     hyper_col = discover_column(long_df, [['hypertension_cum', 'hyperten', 'hypertension']], "Hypertension History")
 
     # Longitudinal aggregation dictionary
     agg_dict = {}
-    
-    # Last Valid rule (takes the last non-null entry for that patient)
     for col in [cog_col, mmse_col, bmi_col]:
-        if col:
-            agg_dict[col] = 'last'
-
-    # Ever-reported rule (any yes/1 in history means yes/1)
+        if col: agg_dict[col] = 'last'
     for col in [stroke_col, diab_col, hyper_col]:
-        if col:
-            agg_dict[col] = 'max'
+        if col: agg_dict[col] = 'max'
 
     # Execute aggregation
-    long_grouped = long_df.groupby('clean_id').agg(agg_dict).reset_index()
+    long_grouped = long_df.groupby('clean_projid').agg(agg_dict).reset_index()
     print(f"  -> Successfully aggregated longitudinal data for {len(long_grouped)} participants.")
 
     # 5. MERGE CLINICAL VARIABLES
-    print("\nMerging cross-sectional and longitudinal clinical variables...")
-    # Set clean_id as index for clinical sheets
-    cross_df = cross_df.set_index('clean_id')
-    long_grouped = long_grouped.set_index('clean_id')
+    print("\nMerging clinical variables...")
+    cross_df = cross_df.set_index('clean_projid')
+    long_grouped = long_grouped.set_index('clean_projid')
+    clinical_merged = cross_df.copy().join(long_grouped, how='left')
 
-    # Start with cross-sectional as base
-    clinical_merged = cross_df.copy()
+    # Now bridge clinical data onto standard genomics R-prefixed individual_ids
+    print("\nBridging de-identified clinical IDs to genomic individual_ids using ROSMAP_clinical.csv...")
+    clinical_merged = clinical_merged.join(id_map.set_index('clean_projid'), how='inner')
+    print(f"  * Successfully bridged {len(clinical_merged)} clinical records to genomic IDs.")
 
-    # Join longitudinal features
-    clinical_merged = clinical_merged.join(long_grouped, how='left')
-
-    # 6. INTEGRATE INTO METADATA
+    # 6. INTEGRATE INTO GENOMIC METADATA
     print("\nAligning with active genomic metadata...")
+    meta_df['clean_ind_id'] = meta_df[meta_indid_col].apply(clean_id_to_string)
     print(f"  * Baseline genomic samples: {len(meta_df)}")
 
-    # Columns we want to extract from clinical merge and add to active metadata
+    # Columns we want to pull
     variables_to_pull = []
-    
-    # Add cross-sectional columns if found (added age_first_ad_dx and cogdx)
     for col in ['msex', 'apoe_genotype', 'braaksc', 'ceradsc', 'amyloid', 'age_death', 'age_first_ad_dx', 'cogdx']:
         discovered = discover_column(clinical_merged, [[col]], f"Cross-sectional target '{col}'")
-        if discovered:
+        if discovered: 
             variables_to_pull.append(discovered)
-
-    # Add longitudinal columns if found
+            
     for col in [cog_col, mmse_col, bmi_col, stroke_col, diab_col, hyper_col]:
-        if col and col in clinical_merged.columns:
+        if col and col in clinical_merged.columns: 
             variables_to_pull.append(col)
 
-    # Subset clinical merged to only target variables
-    clinical_subset = clinical_merged[variables_to_pull]
+    # Keep mapped ID for joining
+    clinical_subset = clinical_merged[variables_to_pull + ['clean_ind_id']]
+    # Deduplicate in case of duplicate keys
+    clinical_subset = clinical_subset.drop_duplicates(subset=['clean_ind_id']).set_index('clean_ind_id')
 
-    # Drop existing duplicates of target columns in metadata to prevent suffix naming like '_x' or '_y'
-    cols_to_drop = [c for c in clinical_subset.columns if c in meta_df.columns and c != 'clean_id']
+    # Drop existing duplicate columns in genomic metadata to prevent suffix collisions
+    cols_to_drop = [c for c in clinical_subset.columns if c in meta_df.columns and c != 'clean_ind_id']
     if cols_to_drop:
         print(f"  * Updating existing columns in metadata: {', '.join(cols_to_drop)}")
         meta_df = meta_df.drop(columns=cols_to_drop)
 
-    # Merge clinical data onto metadata using normalized IDs
-    final_metadata = meta_df.merge(clinical_subset, left_on='clean_id', right_index=True, how='left')
+    # Merge bridged clinical data onto metadata using normalized IDs
+    final_metadata = meta_df.merge(clinical_subset, left_on='clean_ind_id', right_index=True, how='left')
 
-    # Drop the temporary clean ID column
-    final_metadata = final_metadata.drop(columns=['clean_id'])
+    # Drop temporary clean ID column
+    final_metadata = final_metadata.drop(columns=['clean_ind_id'])
 
     # Save output
     print(f"\nSaving final merged dataset back to: {meta_path}...")
     final_metadata.to_csv(meta_path, index=False)
 
     print("======================================================================")
-    print("ROSMAP Clinical Integration Completed Successfully!")
+    print("ROSMAP Double-Hop Clinical Integration Completed Successfully!")
     print(f"Final Metadata Matrix Shape: {final_metadata.shape} (samples x variables)")
+    # Print non-NaN counts for validation
+    print("----------------------------------------------------------------------")
+    print("Validation: Number of populated (non-blank) patients per variable:")
+    for col in clinical_subset.columns:
+        populated = final_metadata[col].notna().sum()
+        print(f"  * {col:<20}: {populated:>4} / {len(final_metadata)} patients populated")
     print("======================================================================")
 
 if __name__ == "__main__":
     main()
+
