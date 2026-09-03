@@ -230,3 +230,6 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 .Rhistory
+
+# Local enrichment cache
+.gmt_cache/
