@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "description": "Core ROSMAP AMS-AREA phenotype definitions. Missing phenotype values are excluded, never imputed. For AMS traits, Regular and Weighted encodings are required to select exactly the same samples.",
+  "traits": [
+    {
+      "name": "AD4_vs_NCI1",
+      "description": "Strict binary clinical diagnosis comparison: diagnosis 4 vs diagnosis 1.",
+      "enabled": true,
+      "source_column": "diagnosis",
+      "type": "binary_only",
+      "regular": {
+        "kind": "mapping",
+        "mapping": {
+          "1": 0,
+          "4": 1
+        },
+        "exclude_values": [
+          2,
+          3,
+          5,
+          6
+        ]
+      }
+    },
+    {
+      "name": "AD45_vs_NCI1",
+      "description": "Broader binary AD comparison: diagnosis 4/5 vs diagnosis 1.",
+      "enabled": true,
+      "source_column": "diagnosis",
+      "type": "binary_only",
+      "regular": {
+        "kind": "mapping",
+        "mapping": {
+          "1": 0,
+          "4": 1,
+          "5": 1
+        },
+        "exclude_values": [
+          2,
+          3,
+          6
+        ]
+      }
+    },
+    {
+      "name": "Cognitive_stage",
+      "description": "AMS cognitive progression model. Regular: cognitive impairment (MCI/AD) vs NCI. Weighted: NCI=0, MCI=0.5, AD=1. Other dementia (diagnosis 6) is excluded from both representations.",
+      "enabled": true,
+      "source_column": "diagnosis",
+      "type": "ams",
+      "regular": {
+        "kind": "mapping",
+        "mapping": {
+          "1": 0,
+          "2": 1,
+          "3": 1,
+          "4": 1,
+          "5": 1
+        },
+        "exclude_values": [
+          6
+        ]
+      },
+      "weighted": {
+        "kind": "mapping",
+        "mapping": {
+          "1": 0,
+          "2": 0.5,
+          "3": 0.5,
+          "4": 1,
+          "5": 1
+        },
+        "exclude_values": [
+          6
+        ]
+      }
+    },
+    {
+      "name": "Braak_stage",
+      "description": "AMS tangle-pathology model. Regular: Braak III-VI vs 0-II. Weighted: linear Braak burden from 0 to 1 across stages 0-6.",
+      "enabled": true,
+      "source_column": "braak",
+      "type": "ams",
+      "regular": {
+        "kind": "threshold",
+        "control_max": 2,
+        "case_min": 3,
+        "valid_min": 0,
+        "valid_max": 6
+      },
+      "weighted": {
+        "kind": "linear",
+        "anchor_min": 0,
+        "anchor_max": 6,
+        "valid_min": 0,
+        "valid_max": 6,
+        "direction": "higher",
+        "clip": true
+      }
+    },
+    {
+      "name": "CERAD_burden",
+      "description": "AMS amyloid-plaque model. CERAD coding is reversed so higher Weighted AREA values mean greater plaque burden. Regular: CERAD 1/2 vs 3/4. Weighted: 1->1, 2->2/3, 3->1/3, 4->0.",
+      "enabled": true,
+      "source_column": "cerad",
+      "type": "ams",
+      "regular": {
+        "kind": "mapping",
+        "mapping": {
+          "1": 1,
+          "2": 1,
+          "3": 0,
+          "4": 0
+        },
+        "exclude_values": []
+      },
+      "weighted": {
+        "kind": "mapping",
+        "mapping": {
+          "1": 1.0,
+          "2": 0.6666666666666666,
+          "3": 0.3333333333333333,
+          "4": 0.0
+        },
+        "exclude_values": []
+      }
+    }
+  ]
+}
