@@ -1,0 +1,27 @@
+{
+  "modality": "tmt",
+  "kind": "continuous",
+  "sample_n": 276,
+  "n_NCI": 167,
+  "n_AD": 109,
+  "feature_universe": 5211,
+  "continuous_covariates": [
+    "age_numeric",
+    "pmi_numeric"
+  ],
+  "categorical_covariates": [
+    "msex",
+    "Batch"
+  ],
+  "conventional_method": "limma",
+  "AREA_block": null,
+  "n_scenarios": 101,
+  "genes_per_scenario": 4,
+  "replicates": 25,
+  "seed": 42,
+  "pilot": false,
+  "tmt_baseline_generator_primary": "empirical_bootstrap",
+  "tmt_gaussian_sensitivity_available": true,
+  "rna_variance_only_mean_definition": null,
+  "rna_symmetric_two_tail_mean_definition": null
+}

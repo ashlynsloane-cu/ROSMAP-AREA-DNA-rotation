@@ -1,0 +1,332 @@
+ROSMAP AREA PROJECT — STAGE 10E PHENOTYPE-DESIGN ROBUSTNESS FREEZE
+Date: 2026-09-28
+
+====================================================================================================
+WHAT STAGE 10E IS
+====================================================================================================
+
+Stage 10E is NOT a new direct confirmation of Stage 9.
+
+The stages answer different questions:
+
+Stage 9:
+    Empirical/descriptive.
+    What signal geometry do real ROSMAP AREA-predominant features show?
+    Stage 9 phenotype generalization already tested whether the lower-overlap AREA geometry
+    generalized across NCI/MCI/AD, Braak, and CERAD contrasts.
+
+Stage 10A-D:
+    Mechanistic simulation.
+    Under known ground truth, which signal geometries favor AREA, DESeq2, limma, or neither?
+
+Stage 10E:
+    Robustness of Stage 10.
+    Do the Stage 10A-D method-behavior patterns persist when the real sample size, group balance,
+    covariates, and reference-group distribution are changed to other pre-specified ROSMAP
+    phenotype contrasts?
+
+Therefore Stage 10E bridges Stage 9 and Stage 10, but it should not be described as an independent
+biological replication of Stage 9.
+
+The five phenotype contrasts are correlated and share participants. They are robustness conditions,
+not five independent biological replications.
+
+====================================================================================================
+FROZEN CONTRASTS
+====================================================================================================
+
+1. cogdx_NCI_vs_MCI
+       reference = NCI
+       case      = MCI
+       definition = PURE_1_NCI_2_MCI_4_AD_exclude_3_5_6
+
+2. cogdx_MCI_vs_AD
+       reference = MCI
+       case      = AD
+       definition = PURE_1_NCI_2_MCI_4_AD_exclude_3_5_6
+
+3. braak_0-2_vs_3-4
+       reference = 0-2
+       case      = 3-4
+
+4. braak_3-4_vs_5-6
+       reference = 3-4
+       case      = 5-6
+
+5. cerad_3-4_vs_1-2
+       reference = CERAD_3-4, LESS pathological
+       case      = CERAD_1-2, MORE pathological
+
+Braak 0-2 vs 5-6 is NOT included as an additional independent contrast. It remains an anchor
+contrast from the broader project design.
+
+Monocyte Braak/CERAD interpretation:
+    eventual neuropathology relative to the earlier blood draw.
+
+====================================================================================================
+FROZEN MODALITY COHORT POLICY
+====================================================================================================
+
+Use maximal eligible discovery-style cohorts, not matched intersections.
+
+Cogdx:
+    Monocyte_discovery
+    DLPFC_discovery
+    TMT_discovery
+
+Braak/CERAD:
+    Monocyte_pathology_subset
+    DLPFC_discovery
+    TMT_discovery
+
+Feature universes remain frozen:
+    monocyte RNA = 14,756 genes
+    DLPFC RNA    = 17,646 genes
+    TMT          = 5,211 globally complete proteins
+
+Covariates remain frozen by modality:
+    monocyte:
+        age_sampling_capped
+        age_sampling_90plus
+        sex
+        sequencingBatch
+
+    DLPFC:
+        age_numeric
+        rin_numeric
+        pmi_numeric
+        sex
+        sequencing_batch
+
+    TMT:
+        age_numeric
+        pmi_numeric
+        msex
+        Batch
+
+AREA block:
+    NONE
+
+====================================================================================================
+CONTRAST-SPECIFIC CALIBRATION
+====================================================================================================
+
+Each Stage 10E contrast is calibrated from its own real reference group.
+
+Examples:
+    NCI -> MCI:
+        calibration reference = NCI
+
+    MCI -> AD:
+        calibration reference = MCI
+
+    Braak 0-2 -> 3-4:
+        calibration reference = Braak 0-2
+
+    Braak 3-4 -> 5-6:
+        calibration reference = Braak 3-4
+
+    CERAD 3-4 -> 1-2:
+        calibration reference = CERAD 3-4, the less-pathological group
+
+This allows Stage 10E to test the actual phenotype-specific sample size, group imbalance,
+covariate design, and baseline distribution rather than simply relabeling the NCI-vs-AD
+simulation.
+
+====================================================================================================
+FROZEN 12-SCENARIO SENTINEL PANEL
+====================================================================================================
+
+E001  BROAD_MEAN_SHIFT
+      penetrance = 100%
+      effect = 1 SD
+
+E002  BROAD_MEAN_SHIFT
+      penetrance = 100%
+      effect = 2 SD
+
+E003  RANDOM_SUBSET_SHIFT
+      penetrance = 30%
+      effect = 2 SD
+
+E004  RANDOM_SUBSET_SHIFT
+      penetrance = 75%
+      effect = 2 SD
+
+E005  ONE_TAIL_AMPLIFICATION
+      penetrance = 30%
+      effect = 2 SD
+
+E006  ONE_TAIL_AMPLIFICATION
+      penetrance = 75%
+      effect = 2 SD
+
+E007  SYMMETRIC_TWO_TAIL
+      penetrance = 30%
+      effect = 2 SD
+
+E008  SYMMETRIC_TWO_TAIL
+      penetrance = 75%
+      effect = 2 SD
+
+E009  ISOLATED_OUTLIERS
+      n outliers = 3
+      effect = 3 SD
+
+E010  ISOLATED_OUTLIERS
+      n outliers = 7
+      effect = 3 SD
+
+E011  VARIANCE_ONLY
+      penetrance = 100%
+      effect = 1 SD
+
+E012  VARIANCE_ONLY
+      penetrance = 100%
+      effect = 2 SD
+
+The panel deliberately retains:
+    - regimes where AREA and conventional methods were similar
+    - regimes where conventional methods were stronger
+    - the variance-only regime where AREA differed strongly in RNA
+    - the symmetric-two-tail regime that was essentially invisible to AREA
+
+The panel is not selected to maximize AREA-favorable scenarios.
+
+====================================================================================================
+NON-NULL BURDEN / BH DESIGN
+====================================================================================================
+
+Stage 10A-D production used:
+    101 scenarios x 4 signal features/scenario = 404 signal features per replicate.
+
+A naive Stage 10E reduction to:
+    12 scenarios x 4 features = 48 signal features
+
+would materially change the genome-wide BH environment and make power comparisons less comparable.
+
+Therefore frozen Stage 10E production uses:
+    12 scenarios x 34 signal features/scenario = 408 signal features per replicate.
+
+This approximately preserves the Stage 10A-D non-null burden while reducing the number of distinct
+scenario cells.
+
+This decision is made BEFORE Stage 10E outcomes are inspected.
+
+====================================================================================================
+SIMULATION MECHANICS
+====================================================================================================
+
+Stage 10E inherits the frozen Stage 10 v5 mechanics.
+
+RNA:
+    negative-binomial count simulation
+    contrast-specific empirical reference-group calibration
+    real size-factor heterogeneity
+    effect sizes calibrated from empirical reference-group log2(normalized + 0.5) SD
+    VARIANCE_ONLY:
+        finite-sample arithmetic-mean-preserving multiplicative heterogeneity
+    SYMMETRIC_TWO_TAIL:
+        realized carrier arithmetic-mean balancing before anchored stochastic perturbation
+
+TMT:
+    log2 abundance scale
+    primary baseline generator:
+        empirical centered residual bootstrap from the contrast-specific reference group
+    frozen global-complete universe:
+        5,211 proteins
+
+Methods:
+    RNA:
+        Regular AREA vs DESeq2
+
+    TMT:
+        Regular AREA vs limma
+
+AREA inference:
+    FWL partial rank
+    residual-df-corrected analytic variance
+    Gaussian two-sided p
+    BH
+    no block
+
+====================================================================================================
+PRODUCTION SETTINGS
+====================================================================================================
+
+Replicates:
+    25 per contrast
+
+Signal features per sentinel scenario:
+    34
+
+Total signal features per replicate:
+    408
+
+Master seed:
+    42
+
+Each contrast has a fixed pre-specified seed offset so simulations are deterministic but do not
+reuse identical draws across contrasts.
+
+Primary significance threshold:
+    BH FDR < 0.05
+
+Ranking summaries:
+    TOP250
+    TOP500
+    TOP1000
+
+Primary TMT baseline:
+    empirical_bootstrap
+
+Gaussian TMT:
+    sensitivity-only; not part of primary Stage 10E.
+
+====================================================================================================
+PRIMARY QUESTIONS
+====================================================================================================
+
+For each modality and contrast:
+
+1. Does AREA remain calibrated?
+2. Does the conventional method remain calibrated?
+3. Does broad directional signal remain detectable?
+4. Do low/intermediate-penetrance subset and one-tail effects continue to favor the same method?
+5. Does symmetric two-tail spreading remain largely invisible to AREA?
+6. Does the RNA variance-only AREA advantage persist outside NCI-vs-AD?
+7. Do apparent method differences change substantially when phenotype-specific sample size,
+   group imbalance, and reference-group distribution change?
+8. Does the monocyte DESeq2 elevated realized-FDR behavior persist across phenotype designs?
+
+Interpretation should emphasize qualitative robustness, not treat each phenotype as an independent
+replication.
+
+====================================================================================================
+WHAT STAGE 10E DOES NOT TEST
+====================================================================================================
+
+Stage 10E does NOT directly test whether the real Stage 9 AREA-predominant genes are generated by
+one exact simulation mechanism.
+
+Stage 10E does NOT replace Stage 9 phenotype generalization.
+
+Stage 10E does NOT establish that AREA is universally superior or inferior.
+
+Stage 10E does NOT make the five phenotype axes independent.
+
+Stage 10E does NOT alter the Stage 10A-D frozen primary results.
+
+====================================================================================================
+FREEZE RULE
+====================================================================================================
+
+The 12-scenario panel, 34 signal features/scenario, five contrasts, reference/case orientation,
+feature universes, covariates, seed policy, and primary methods are frozen before Stage 10E
+outcomes are inspected.
+
+Any later deviation must be labeled explicitly as a sensitivity or follow-up analysis.
+
+====================================================================================================
+END
+====================================================================================================

@@ -1,0 +1,571 @@
+ROSMAP AREA PROJECT — STAGE 10A–D SIMULATION DESIGN FREEZE
+Multimodal ROSMAP-Calibrated Simulation Framework
+Freeze date: 2026-09-25
+Frozen implementation: build_stage10_multimodal_simulations.py (v5 design)
+
+STATUS
+====================================================================================================
+
+STAGE 10A–D SIMULATION DESIGN IS FROZEN FOR PRODUCTION.
+
+This freeze applies to:
+    10A. Monocyte RNA simulation: Regular AREA vs DESeq2
+    10B. DLPFC RNA simulation: Regular AREA vs DESeq2
+    10C. DLPFC TMT proteomics simulation: Regular AREA vs limma
+    10D. Cross-modality synthesis of the same pre-specified simulation regimes
+
+Stage 10E phenotype-design robustness is NOT included in this freeze. It must be pre-specified
+separately before its results are inspected.
+
+After this freeze, the following must NOT be changed in response to production results:
+    - scenario families
+    - penetrance grid
+    - effect-size grid
+    - outlier-count grid
+    - number of primary production replicates
+    - number of simulated signal features per scenario
+    - primary TMT baseline generator
+    - RNA mean-preservation definitions
+    - feature universes
+    - frozen NCI-vs-AD cohorts
+    - primary statistical methods
+    - FDR threshold
+    - AREA covariate adjustment or block usage
+
+Any later change must be explicitly labeled as a sensitivity analysis or follow-up and must not
+replace the frozen primary production design.
+
+PRIMARY SCIENTIFIC QUESTION
+====================================================================================================
+
+Stage 10 asks:
+
+    Under which pre-specified signal geometries does covariate-adjusted Regular AREA recover
+    true signal better, similarly, or worse than conventional mean-based methods, and which
+    mechanisms can reproduce the distributional geometry observed empirically in Stage 9?
+
+The purpose is mechanistic comparison under known ground truth.
+
+Stage 10 is NOT designed to:
+    - search for simulation regimes that make AREA look favorable
+    - tune the scenario grid after viewing power results
+    - establish global superiority of AREA
+    - treat the three omic modalities as interchangeable
+
+Stage 9 motivates the geometry question but Stage 10 production outcomes may not alter the frozen
+simulation design.
+
+FROZEN MODALITIES, COHORTS, UNIVERSES, AND METHODS
+====================================================================================================
+
+MONOCYTE RNA
+    Cohort:
+        PURE cogdx NCI vs AD
+        n = 298
+        NCI = 152
+        AD = 146
+
+    Feature universe:
+        14,756 frozen protein-coding expressed genes
+
+    Conventional method:
+        DESeq2
+
+    Comparator:
+        covariate-adjusted Regular AREA
+
+    Covariates:
+        continuous:
+            age_sampling_capped
+        categorical:
+            age_sampling_90plus
+            sex
+            sequencingBatch
+
+    AREA exchangeability block:
+        NONE
+
+
+DLPFC RNA
+    Cohort:
+        PURE cogdx NCI vs AD
+        n = 419
+        NCI = 200
+        AD = 219
+
+    Feature universe:
+        17,646 frozen protein-coding expressed genes
+
+    Conventional method:
+        DESeq2
+
+    Comparator:
+        covariate-adjusted Regular AREA
+
+    Covariates:
+        continuous:
+            age_numeric
+            rin_numeric
+            pmi_numeric
+        categorical:
+            sex
+            sequencing_batch
+
+    AREA exchangeability block:
+        NONE
+
+
+DLPFC TMT PROTEOMICS
+    Cohort:
+        PURE cogdx NCI vs AD
+        n = 276
+        NCI = 167
+        AD = 109
+
+    Feature universe:
+        5,211 globally complete proteins across all 400 biological TMT samples
+
+    Conventional method:
+        limma
+
+    Comparator:
+        covariate-adjusted Regular AREA
+
+    Covariates:
+        continuous:
+            age_numeric
+            pmi_numeric
+        categorical:
+            msex
+            Batch
+
+    AREA exchangeability block:
+        NONE
+
+FROZEN SCENARIO GRID
+====================================================================================================
+
+TOTAL SCENARIOS:
+    101
+
+1. BROAD_MEAN_SHIFT
+    All AD participants are carriers.
+
+    Effect sizes:
+        0.5, 1.0, 2.0, 3.0 empirical NCI SD units
+
+    Number of scenarios:
+        4
+
+
+2. RANDOM_SUBSET_SHIFT
+    A random pre-specified fraction of AD participants receives a same-direction shift.
+
+    Penetrance:
+        5%, 10%, 20%, 30%, 50%, 75%, 100%
+
+    Effect sizes:
+        0.5, 1.0, 2.0, 3.0 empirical NCI SD units
+
+    Number of scenarios:
+        7 x 4 = 28
+
+
+3. ONE_TAIL_AMPLIFICATION
+    A pre-specified fraction of AD participants already in the relevant realized baseline
+    expression tail is shifted farther into that same tail.
+
+    Penetrance:
+        5%, 10%, 20%, 30%, 50%, 75%, 100%
+
+    Effect sizes:
+        0.5, 1.0, 2.0, 3.0 empirical NCI SD units
+
+    Number of scenarios:
+        7 x 4 = 28
+
+
+4. SYMMETRIC_TWO_TAIL
+    AD participants from both realized baseline tails are shifted outward.
+
+    Penetrance:
+        5%, 10%, 20%, 30%, 50%, 75%, 100%
+
+    Effect sizes:
+        0.5, 1.0, 2.0, 3.0 empirical NCI SD units
+
+    Number of scenarios:
+        7 x 4 = 28
+
+
+5. ISOLATED_OUTLIERS
+    Exactly 1, 3, or 7 AD participants receive a large same-direction perturbation.
+
+    Carrier counts:
+        1, 3, 7
+
+    Effect sizes:
+        2.0, 3.0, 4.0 empirical NCI SD units
+
+    Number of scenarios:
+        3 x 3 = 9
+
+
+6. VARIANCE_ONLY
+    All AD participants receive a heterogeneity-increasing perturbation with no intended
+    arithmetic mean shift.
+
+    Effect sizes:
+        0.5, 1.0, 2.0, 3.0 empirical NCI SD units
+
+    Number of scenarios:
+        4
+
+
+TOTAL:
+    4 + 28 + 28 + 28 + 9 + 4 = 101 scenarios
+
+FROZEN EFFECT CALIBRATION
+====================================================================================================
+
+RNA:
+    Effect magnitude is calibrated using empirical NCI
+        SD(log2(normalized_count + 0.5))
+
+    Signals are injected on the linear expected-count scale.
+
+TMT:
+    Effect magnitude is calibrated using empirical NCI SD on the existing TMT log2 abundance scale.
+
+Signal direction:
+    Directional scenarios randomize direction by simulated feature so that the simulation does not
+    create an artificial one-sided advantage.
+
+FROZEN RNA GENERATION RULES
+====================================================================================================
+
+Baseline RNA generation:
+    Negative-binomial counts calibrated to real ROSMAP NCI data.
+
+Calibration includes:
+    - real-data baseline expression means
+    - negative-binomial dispersion
+    - empirical library-size / size-factor heterogeneity
+    - empirical NCI log2-expression SD
+    - real frozen sample size and covariate design
+
+Known limitation:
+    Simulated genes are marginally calibrated and independent.
+    Gene-gene co-expression is not reproduced in the primary Stage 10 simulation.
+    This limitation is frozen and must not be changed after inspecting production results.
+
+
+SYMMETRIC_TWO_TAIL technical definition:
+    Realized normalized-expression anchors are used and carrier multipliers are explicitly
+    rebalanced so that the carrier arithmetic mean is preserved exactly BEFORE the anchored
+    stochastic Poisson perturbation.
+
+Pilot audit:
+    Monocyte max |expected/reference mean ratio - 1|:
+        4.441e-16
+
+    DLPFC max |expected/reference mean ratio - 1|:
+        5.551e-16
+
+
+VARIANCE_ONLY technical definition:
+    v5 draws lognormal multiplicative heterogeneity and then divides the realized AD multipliers
+    by their arithmetic mean.
+
+    Therefore:
+        mean(multiplier_AD) = 1 for every simulated RNA feature, up to floating-point precision.
+
+    This normalization is only a constant shift on the log2 scale, so it does not change the
+    realized log2-scale SD of the perturbation.
+
+Pilot audit after v5 correction:
+    Monocyte max |mean_multiplier_AD - 1|:
+        2.220446049250313e-16
+
+    DLPFC max |mean_multiplier_AD - 1|:
+        2.220446049250313e-16
+
+This v5 correction was made BEFORE the Stage 10 production freeze because the pilot technical audit
+showed that expectation-only centering could create substantial finite-sample mean shifts.
+The correction was motivated by scenario-definition fidelity, not by comparative method power.
+
+FROZEN TMT GENERATION RULES
+====================================================================================================
+
+Primary TMT baseline generator:
+    empirical_bootstrap
+
+Construction:
+    For each globally complete real TMT protein:
+        1. use the real NCI participants
+        2. subtract that protein's NCI mean
+        3. retain the resulting centered empirical residual distribution
+        4. bootstrap those empirical centered residuals with replacement
+        5. add the selected template protein's real NCI mean
+
+Purpose:
+    Preserve empirical marginal skew, heavy tails, and non-Gaussian distribution shape better than
+    a Normal(mean, SD) generator.
+
+Primary production:
+    empirical_bootstrap
+
+Pre-specified sensitivity:
+    gaussian
+
+The Gaussian TMT generator may be run as a sensitivity analysis but may not replace the empirical
+bootstrap as the primary analysis after production results are inspected.
+
+DLPFC NORMALIZATION-SCALE AUDIT
+====================================================================================================
+
+The DLPFC AREA normalized matrix was explicitly audited before freeze.
+
+Frozen conclusion:
+    It is LINEAR size-factor-normalized count data, not already log-transformed data.
+
+Audit:
+    aligned genes:
+        17,646
+
+    median sample median relative reconstruction error:
+        6.578772172e-16
+
+    worst sample median relative reconstruction error:
+        1.064801451e-15
+
+    median raw/size-factor-vs-normalized correlation:
+        1.0
+
+    minimum correlation:
+        1.0
+
+Therefore:
+    Stage 10 DLPFC calibration using
+        log2(normalized_counts + 0.5)
+    is appropriate.
+
+AREA INFERENCE REQUIREMENTS
+====================================================================================================
+
+Every production AREA run must satisfy:
+
+    block:
+        null / NONE
+
+    inference:
+        FWL partial rank
+        + residual-df-corrected analytic permutation variance
+        + Gaussian two-sided p
+        + BH
+
+    variance_df:
+        MUST equal residual_df for these no-block production fits.
+
+Pilot replicate 1 audit:
+
+    Monocyte:
+        design rank = 10
+        residual df = 288
+        variance df = 288
+
+    DLPFC:
+        design rank = 13
+        residual df = 406
+        variance df = 406
+
+    TMT:
+        design rank = 53
+        residual df = 223
+        variance df = 223
+
+PILOT DESIGN
+====================================================================================================
+
+Pilot purpose:
+    Machinery and calibration checks only.
+
+Pilot replicates:
+    3
+
+Signal features per scenario per pilot replicate:
+    1
+
+Signals per modality per pilot replicate:
+    101
+
+Pilot results MUST NOT be treated as stable power estimates and MUST NOT be used to alter the
+scenario grid.
+
+All three pilot replicates completed successfully for:
+    - monocyte
+    - DLPFC
+    - TMT
+
+3-REPLICATE PILOT NULL CALIBRATION
+====================================================================================================
+
+MONOCYTE
+
+    AREA
+        null instances:          43,965
+        null p < 0.01:           0.010031
+        null p < 0.05:           0.048743
+        null median p:           0.504260
+        null FDR<0.05 fraction:  0.000023
+
+    DESeq2
+        null instances:          43,951
+        null p < 0.01:           0.012282
+        null p < 0.05:           0.055590
+        null median p:           0.495107
+        null FDR<0.05 fraction:  0.000182
+
+
+DLPFC
+
+    AREA
+        null instances:          52,635
+        null p < 0.01:           0.010582
+        null p < 0.05:           0.050385
+        null median p:           0.503193
+        null FDR<0.05 fraction:  0.000057
+
+    DESeq2
+        null instances:          52,635
+        null p < 0.01:           0.011228
+        null p < 0.05:           0.050366
+        null median p:           0.501333
+        null FDR<0.05 fraction:  0.000133
+
+
+TMT
+
+    AREA
+        null instances:          15,330
+        null p < 0.01:           0.010502
+        null p < 0.05:           0.051794
+        null median p:           0.494548
+        null FDR<0.05 fraction:  0.000130
+
+    limma
+        null instances:          15,330
+        null p < 0.01:           0.010763
+        null p < 0.05:           0.049967
+        null median p:           0.489785
+        null FDR<0.05 fraction:  0.000196
+
+
+Freeze decision:
+    Pilot null calibration is sufficiently close to nominal overall to authorize the frozen
+    production simulation.
+
+    Pre-specified caveat retained for interpretation:
+        Monocyte DESeq2 showed mild excess nominal null p-values in the 3-replicate pilot
+        (p < 0.05 = 0.055590; p < 0.01 = 0.012282). This is not being used to modify the
+        simulator or method implementation. Its realized FDR must be reported explicitly in
+        production alongside AREA and the other conventional-method results.
+
+No scenario-level pilot power result was used to modify the frozen design.
+
+FROZEN PRODUCTION RUN
+====================================================================================================
+
+Primary production replicates:
+    25
+
+Signal features per scenario per replicate:
+    4
+
+Signal features per modality per replicate:
+    101 x 4 = 404
+
+Total feature universe remains fixed:
+    Monocyte:
+        14,756
+
+    DLPFC:
+        17,646
+
+    TMT:
+        5,211
+
+All remaining features in each replicate are null features.
+
+Master seed:
+    42
+
+Primary significance threshold:
+    BH FDR < 0.05
+
+Reference ranking thresholds:
+    TOP250
+    TOP500
+    TOP1000
+
+IMPLEMENTATION / AUTHORITATIVE PATHS
+====================================================================================================
+
+Frozen production script:
+    ~/rosmap_multiomic_slurm/scripts/multiomic/
+        build_stage10_multimodal_simulations.py
+
+Stage 10 output root:
+    ~/rosmap_multiomic_slurm/results/stage10_multimodal_simulations/
+
+Pilot root:
+    ~/rosmap_multiomic_slurm/results/stage10_multimodal_simulations/pilot/
+
+Technical audit directory:
+    ~/rosmap_multiomic_slurm/results/stage10_multimodal_simulations/technical_audit/
+
+Three-replicate pilot summary:
+    ~/rosmap_multiomic_slurm/results/stage10_multimodal_simulations/technical_audit/
+        stage10_v5_pilot_3rep_summary.txt
+
+Frozen per-modality specification generated by --prepare:
+    <stage10 root>/<modality>/specification/specification.json
+    <stage10 root>/<modality>/specification/scenario_grid.tsv
+
+Production preparation must be run without --pilot so that the frozen production specification
+records:
+    replicates = 25
+    genes_per_scenario = 4
+    seed = 42
+
+STAGE 10E
+====================================================================================================
+
+Stage 10E phenotype-design robustness remains planned but is separate from this freeze.
+
+It should use a reduced, pre-specified robustness design based on actual phenotype structures for:
+    - NCI vs MCI
+    - MCI vs AD
+    - Braak 0-2 vs 3-4
+    - Braak 3-4 vs 5-6
+    - CERAD 1-2 vs 3-4
+
+Do NOT automatically repeat the full 101-scenario x all-phenotype design.
+The reduced Stage 10E grid must be documented and frozen before its results are inspected.
+
+FINAL FREEZE STATEMENT
+====================================================================================================
+
+The Stage 10A–D primary simulation design is frozen at v5.
+
+The production run is authorized because:
+    - the DLPFC expression scale was resolved explicitly
+    - the corrected residual-df AREA implementation is being used
+    - RNA size-factor recovery was strong in pilot simulations
+    - symmetric-two-tail RNA perturbations are arithmetic-mean-balanced before stochastic redraw
+    - variance-only RNA perturbations are strictly finite-sample arithmetic-mean-preserving
+    - the primary TMT baseline uses empirical NCI residual bootstrapping
+    - three pilot replicates completed in all three modalities
+    - null calibration was approximately nominal across AREA and conventional methods
+
+No primary design element may now be modified because of observed production performance.

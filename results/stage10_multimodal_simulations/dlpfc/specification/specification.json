@@ -1,0 +1,28 @@
+{
+  "modality": "dlpfc",
+  "kind": "rna",
+  "sample_n": 419,
+  "n_NCI": 200,
+  "n_AD": 219,
+  "feature_universe": 17646,
+  "continuous_covariates": [
+    "age_numeric",
+    "rin_numeric",
+    "pmi_numeric"
+  ],
+  "categorical_covariates": [
+    "sex",
+    "sequencing_batch"
+  ],
+  "conventional_method": "DESeq2",
+  "AREA_block": null,
+  "n_scenarios": 101,
+  "genes_per_scenario": 4,
+  "replicates": 25,
+  "seed": 42,
+  "pilot": false,
+  "tmt_baseline_generator_primary": null,
+  "tmt_gaussian_sensitivity_available": false,
+  "rna_variance_only_mean_definition": "finite-sample arithmetic expected normalized-expression mean preserved exactly by normalizing realized lognormal multipliers to mean 1; log2-scale SD unchanged by this normalization",
+  "rna_symmetric_two_tail_mean_definition": "realized carrier normalized-expression mean balanced exactly before anchored Poisson perturbation"
+}

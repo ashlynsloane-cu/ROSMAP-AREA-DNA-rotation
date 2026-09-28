@@ -1,0 +1,665 @@
+ROSMAP AREA PROJECT — STAGE 10A–D FINAL SIMULATION INTERPRETATION
+Production multimodal ROSMAP-calibrated simulation results
+Date: 2026-09-28
+
+====================================================================================================
+EXECUTIVE SUMMARY
+====================================================================================================
+
+Stage 10A–D used controlled simulations with known ground truth to ask when covariate-adjusted
+Regular AREA detects disease-associated molecular signals differently from standard mean-based
+methods.
+
+Modalities:
+    10A. Monocyte RNA: AREA vs DESeq2
+    10B. DLPFC RNA: AREA vs DESeq2
+    10C. DLPFC TMT proteomics: AREA vs limma
+    10D. Cross-modality synthesis
+
+Production design:
+    25 replicates
+    101 pre-specified signal scenarios
+    4 signal features per scenario per replicate
+    100 signal-feature instances per scenario per modality
+    BH FDR threshold = 0.05
+    frozen seed = 42
+    no AREA block
+    covariate-adjusted residual-df-corrected AREA inference
+
+The central result is:
+
+    AREA is NOT a generic detector of "heterogeneity," "outliers," or "extreme expression."
+
+Instead, AREA is most sensitive when disease status produces a systematic directional change in
+where cases fall in the ranked expression distribution.
+
+The strongest AREA-specific signal in these simulations was an asymmetric, mean-preserving
+multiplicative RNA heterogeneity regime. AREA was NOT sensitive to a purely symmetric increase in
+dispersion.
+
+Conventional mean-based methods were often more sensitive to sparse subset shifts, isolated
+outliers, and one-tail amplification at low or moderate penetrance.
+
+This refines, rather than simply rejects, the conceptual claims of the original AREA manuscript.
+
+====================================================================================================
+1. PRODUCTION CALIBRATION
+====================================================================================================
+
+Null p-value calibration was close to nominal for AREA in every modality:
+
+Monocyte AREA:
+    null p < 0.01 = 0.009682
+    null p < 0.05 = 0.048958
+    median null p = 0.500614
+
+DLPFC AREA:
+    null p < 0.01 = 0.010057
+    null p < 0.05 = 0.050201
+    median null p = 0.500076
+
+TMT AREA:
+    null p < 0.01 = 0.009902
+    null p < 0.05 = 0.049869
+    median null p = 0.498613
+
+DLPFC DESeq2 and TMT limma were also close to nominal.
+
+Monocyte DESeq2 showed reproducible mild anti-conservatism at the nominal-p level:
+    null p < 0.01 = 0.012040
+    null p < 0.05 = 0.055661
+    median null p = 0.493011
+
+This same pattern had already appeared in the three-replicate pilot.
+
+====================================================================================================
+2. REALIZED FDR
+====================================================================================================
+
+Realized FDR was evaluated directly from the known simulated ground truth.
+
+DLPFC AREA:
+    mean discoveries/replicate = 112.68
+    mean true discoveries = 107.96
+    mean false discoveries = 4.72
+    mean realized FDR = 0.0415
+    median realized FDR = 0.0364
+    maximum realized FDR = 0.0826
+
+DLPFC DESeq2:
+    mean discoveries/replicate = 131.40
+    mean true discoveries = 124.60
+    mean false discoveries = 6.80
+    mean realized FDR = 0.0516
+    median realized FDR = 0.0496
+    maximum realized FDR = 0.0746
+
+Monocyte AREA:
+    mean discoveries/replicate = 86.56
+    mean true discoveries = 82.96
+    mean false discoveries = 3.60
+    mean realized FDR = 0.0415
+    median realized FDR = 0.0366
+    maximum realized FDR = 0.0732
+
+Monocyte DESeq2:
+    mean discoveries/replicate = 122.16
+    mean true discoveries = 112.28
+    mean false discoveries = 9.88
+    mean realized FDR = 0.0802
+    median realized FDR = 0.0769
+    maximum realized FDR = 0.1429
+
+TMT AREA:
+    mean discoveries/replicate = 96.88
+    mean true discoveries = 92.68
+    mean false discoveries = 4.20
+    mean realized FDR = 0.0428
+    median realized FDR = 0.0417
+    maximum realized FDR = 0.0808
+
+TMT limma:
+    mean discoveries/replicate = 109.00
+    mean true discoveries = 104.48
+    mean false discoveries = 4.52
+    mean realized FDR = 0.0409
+    median realized FDR = 0.0392
+    maximum realized FDR = 0.0654
+
+
+Interpretation:
+
+    AREA controlled mean realized FDR below 0.05 in all three modalities.
+
+    DLPFC DESeq2 was approximately nominal overall.
+
+    TMT limma was approximately nominal overall.
+
+    Monocyte DESeq2 had materially elevated realized FDR (~0.08 rather than 0.05).
+
+Important statistical note:
+
+    The fraction of individual replicates with realized FDR > 0.05 is NOT itself a failure of FDR
+    control. FDR is an expectation over repeated experiments, not a requirement that every replicate
+    individually remain below 0.05.
+
+    The meaningful concern is the mean monocyte DESeq2 realized FDR of ~0.08 across 25 replicates.
+
+Consequence for interpretation:
+
+    Any apparent monocyte DESeq2 power advantage must be interpreted with caution because DESeq2
+    was operating at a more liberal realized error rate in this simulation.
+
+    This does NOT invalidate the monocyte DESeq2 results, but it means raw FDR<0.05 power is not a
+    perfectly equal-error-rate comparison in monocytes.
+
+    AREA's strong monocyte advantage in the variance-only regime is especially notable because AREA
+    achieved it while maintaining lower realized FDR than DESeq2.
+
+====================================================================================================
+3. BROAD MEAN SHIFTS
+====================================================================================================
+
+This is the standard differential-expression regime: most or all AD participants move in the same
+direction.
+
+DLPFC:
+    0.5 SD:
+        AREA power = 0.94
+        DESeq2 power ≈ 0.96
+    >= 1 SD:
+        both methods essentially saturated at 1.00
+
+Monocyte:
+    0.5 SD:
+        AREA = 0.43
+        DESeq2 ≈ 0.57
+    1 SD:
+        AREA = 0.80
+        DESeq2 ≈ 0.93
+    2 SD:
+        AREA = 0.95
+        DESeq2 ≈ 0.99
+    3 SD:
+        both = 1.00
+
+TMT:
+    0.5 SD:
+        AREA = 0.75
+        limma ≈ 0.54
+    >= 1 SD:
+        both essentially saturated at 1.00
+
+Interpretation:
+
+    AREA remains fully capable of detecting ordinary directional mean shifts.
+
+    It is not inherently inferior to mean-based methods under homogeneous effects.
+
+    Weak-effect performance depends on modality.
+
+====================================================================================================
+4. RANDOM SUBSET SHIFTS
+====================================================================================================
+
+Only a fraction of AD participants receive the directional shift.
+
+General pattern:
+
+    At low penetrance (especially 5–20%), conventional mean-based methods often outperform AREA.
+
+    At intermediate penetrance (around 30–50%), the gap narrows and becomes modality dependent.
+
+    At high penetrance (75–100%), AREA usually catches up and both methods often approach saturation.
+
+Examples:
+
+20% penetrance, 2 SD:
+    DLPFC:
+        AREA = 0.16
+        DESeq2 ≈ 0.42
+
+    Monocyte:
+        AREA = 0.05
+        DESeq2 ≈ 0.35
+
+    TMT:
+        AREA = 0.10
+        limma ≈ 0.17
+
+30% penetrance, 2 SD:
+    DLPFC:
+        AREA = 0.81
+        DESeq2 ≈ 0.89
+
+    Monocyte:
+        AREA = 0.25
+        DESeq2 ≈ 0.47
+
+    TMT:
+        AREA = 0.46
+        limma ≈ 0.62
+
+50% penetrance, 2 SD:
+    DLPFC:
+        AREA = 0.98
+        DESeq2 ≈ 0.96
+
+    Monocyte:
+        AREA = 0.69
+        DESeq2 ≈ 0.71
+
+    TMT:
+        AREA = 0.99
+        limma ≈ 1.00
+
+Interpretation:
+
+    AREA does not automatically gain power merely because a signal is incompletely penetrant.
+
+    A relatively small shifted subgroup can be easier for a mean-based method to detect when the
+    shift magnitude is large enough to influence the group mean.
+
+====================================================================================================
+5. ONE-TAIL AMPLIFICATION
+====================================================================================================
+
+This scenario deliberately takes AD participants already in the relevant expression tail and pushes
+them farther outward.
+
+General result:
+
+    AREA was usually LESS sensitive than the conventional method at low or moderate penetrance.
+
+Examples:
+
+30% penetrance, 2 SD:
+    DLPFC:
+        AREA = 0.00
+        DESeq2 ≈ 0.59
+
+    Monocyte:
+        AREA = 0.00
+        DESeq2 ≈ 0.55
+
+    TMT:
+        AREA = 0.00
+        limma ≈ 0.33
+
+50% penetrance, 2 SD:
+    DLPFC:
+        AREA = 0.67
+        DESeq2 ≈ 0.81
+
+    Monocyte:
+        AREA = 0.29
+        DESeq2 ≈ 0.49
+
+    TMT:
+        AREA = 0.29
+        limma = 1.00
+
+At 75–100% penetrance, AREA generally catches up and can sometimes exceed the conventional method
+at weak effect sizes.
+
+Why?
+
+    AREA operates on ranks.
+
+    If someone is already close to the extreme end of the ranked list, making that person's raw
+    expression much more extreme may change the actual expression value dramatically while changing
+    the rank very little.
+
+    Mean-based methods retain sensitivity to that magnitude change.
+
+Therefore:
+
+    "Extreme raw expression" is not synonymous with "strong AREA signal."
+
+====================================================================================================
+6. ISOLATED OUTLIERS
+====================================================================================================
+
+Only 1, 3, or 7 AD participants receive a large shift.
+
+Result:
+
+    AREA was essentially insensitive across these scenarios.
+
+    Conventional methods occasionally detected these signals, especially monocyte DESeq2.
+
+Examples:
+
+Monocyte, 7 outliers:
+    3 SD:
+        AREA = 0.00
+        DESeq2 ≈ 0.21
+
+    4 SD:
+        AREA = 0.00
+        DESeq2 ≈ 0.21
+
+Interpretation:
+
+    Regular AREA is NOT an isolated-outlier detector.
+
+    This is an important correction to an overly broad reading of the phrase "extreme expression."
+
+====================================================================================================
+7. SYMMETRIC TWO-TAIL SPREADING
+====================================================================================================
+
+This scenario makes the disease distribution more extreme at BOTH the low and high ends while
+preserving the arithmetic center as closely as possible.
+
+Result:
+
+    Both AREA and the conventional methods were almost completely insensitive.
+
+    AREA power was generally 0.00 and only occasionally reached ~0.01–0.03, even with very large
+    effects and 100% penetrance.
+
+Interpretation:
+
+    Regular AREA is NOT a generic two-sample distributional test.
+
+    A disease group can become much wider and have more extreme values in both directions without
+    producing a directional concentration of disease labels in the rank ordering.
+
+    In that situation, AREA has little signal to detect.
+
+This is one of the cleanest mechanistic findings of Stage 10.
+
+====================================================================================================
+8. VARIANCE-ONLY / MEAN-PRESERVING HETEROGENEITY
+====================================================================================================
+
+The RNA and TMT results diverged sharply.
+
+RNA simulation:
+    multiplicative heterogeneity on the linear count scale
+    finite-sample arithmetic mean multiplier normalized to exactly 1
+
+DLPFC:
+    0.5 SD:
+        AREA = 0.00
+        DESeq2 = 0.00
+
+    1 SD:
+        AREA = 0.02
+        DESeq2 = 0.00
+
+    2 SD:
+        AREA = 0.45
+        DESeq2 = 0.00
+
+    3 SD:
+        AREA = 0.82
+        DESeq2 ≈ 0.03
+
+Monocyte:
+    0.5 SD:
+        AREA = 0.01
+        DESeq2 ≈ 0.01
+
+    1 SD:
+        AREA = 0.19
+        DESeq2 = 0.00
+
+    2 SD:
+        AREA = 0.96
+        DESeq2 ≈ 0.22
+
+    3 SD:
+        AREA = 0.99
+        DESeq2 ≈ 0.50
+
+TMT:
+    0.5 SD:
+        AREA = 0.00
+        limma = 0.00
+
+    1 SD:
+        AREA = 0.01
+        limma = 0.00
+
+    2 SD:
+        AREA = 0.00
+        limma = 0.00
+
+    3 SD:
+        AREA = 0.00
+        limma = 0.00
+
+
+Interpretation:
+
+    AREA does NOT simply detect variance changes.
+
+    The RNA generator creates mean-preserving multiplicative heterogeneity. Although the arithmetic
+    mean multiplier is exactly 1, the induced distribution on the expression scale is asymmetric:
+    many observations can move modestly in one direction while fewer observations move strongly in
+    the opposite direction.
+
+    That can create a directional rearrangement of rank positions even though the arithmetic mean is
+    preserved.
+
+    AREA detects that rank redistribution.
+
+    In contrast, the TMT variance-only simulation uses a symmetric additive zero-mean perturbation on
+    the log2 scale. That increases spread without creating the same directional rank footprint.
+
+    AREA has essentially no power there.
+
+Therefore, the correct statement is NOT:
+
+    "AREA detects variance better."
+
+A better statement is:
+
+    "AREA can be sensitive to mean-preserving heterogeneity when that heterogeneity induces an
+    asymmetric directional redistribution of ranks, but it is not sensitive to purely symmetric
+    increases in dispersion."
+
+====================================================================================================
+9. WHAT THIS MEANS FOR STAGE 9
+====================================================================================================
+
+Stage 9 showed that AREA-predominant ROSMAP features generally had lower NCI/AD distributional
+overlap than conventional-method-predominant features.
+
+Stage 10 shows that lower overlap alone is NOT sufficient to explain AREA selection.
+
+Why?
+
+    A symmetric increase in variance or symmetric two-tail spreading can reduce distributional
+    overlap substantially.
+
+    Yet AREA showed essentially no power for those symmetric geometries.
+
+Therefore, the Stage 9 AREA-predominant features are more plausibly characterized by:
+
+    directional or asymmetric rank redistribution
+
+rather than simply:
+
+    broader variance
+    heavier tails
+    isolated outliers
+    or lower overlap in a generic sense
+
+This is a substantially sharper mechanistic interpretation of the Stage 9 geometry result.
+
+====================================================================================================
+10. COMPARISON WITH THE ORIGINAL AREA MANUSCRIPT
+====================================================================================================
+
+The original AREA manuscript describes AREA as a rank-based method for detecting disease
+associations with high or low expression.
+
+That core concept is supported.
+
+However, Stage 10 places important limits on a broad interpretation of "extreme expression."
+
+Original manuscript simulation structure:
+    - approximately 400 pseudo-individuals
+    - normally distributed expression values calibrated from HTP genes
+    - affected distributions shifted by 1, 2, or 3 SD
+    - variable penetrance produced by mixing disease-labeled participants from a shifted affected
+      distribution with disease-labeled participants from the unaffected distribution
+    - AREA evaluated for recovery of simulated gene-label associations
+
+This design is conceptually closest to the Stage 10 RANDOM_SUBSET_SHIFT scenario.
+
+The original manuscript reported that AREA could recover associations with relatively few affected
+individuals and across a broad range of affected proportions.
+
+Stage 10 partly corroborates that conclusion:
+    - AREA does recover incomplete-penetrance directional signals
+    - performance improves strongly as penetrance and/or effect size increase
+    - at high penetrance, AREA often approaches or matches conventional methods
+
+But Stage 10 also qualifies it:
+    - under ROSMAP-calibrated RNA/TMT distributions, low-penetrance directional signals can be hard
+      for AREA
+    - DESeq2/limma often outperform AREA at 5–30% penetrance
+    - isolated outliers are not an AREA strength
+    - making already-extreme individuals more extreme is not necessarily an AREA strength
+    - symmetric two-tail dispersion is not an AREA strength
+
+These results do NOT directly invalidate the original simulations because the designs differ
+substantially.
+
+Important design differences:
+
+Original AREA simulations:
+    Normal-expression pseudo-individuals
+    simplified feature sets
+    original unadjusted AREA enrichment/permutation framework
+    primary question: can AREA recover the known association?
+
+Current Stage 10:
+    ROSMAP-calibrated negative-binomial RNA counts
+    empirical-bootstrap TMT distributions
+    full modality-wide feature universes
+    realistic sample sizes and covariates
+    covariate-adjusted FWL partial-rank AREA
+    residual-df-corrected inference
+    direct DESeq2 / limma comparators
+    primary question: where does AREA outperform, match, or underperform conventional methods?
+
+Therefore, direct numerical power comparisons between the original manuscript and Stage 10 should
+not be treated as apples-to-apples.
+
+The main conceptual refinement is:
+
+    AREA is best understood as a detector of directional enrichment in expression ranks.
+
+It should NOT be described broadly as a detector of any kind of extreme-expression heterogeneity.
+
+====================================================================================================
+11. MONOCYTE DESEQ2 CALIBRATION CAVEAT
+====================================================================================================
+
+Monocyte DESeq2 deserves explicit caution.
+
+Production:
+    null p < 0.05 = 0.055661
+    mean realized FDR = 0.080174
+    median realized FDR = 0.076923
+    23/25 replicates had realized FDR > 0.05
+
+This means the nominal FDR<0.05 DESeq2 threshold was relatively liberal under this particular
+monocyte simulation generator.
+
+Consequences:
+
+    1. Monocyte DESeq2 power advantages should not automatically be interpreted as pure sensitivity
+       advantages.
+
+    2. Some fraction of the higher discovery rate reflects weaker empirical error control.
+
+    3. This caveat is much less important for DLPFC DESeq2 and TMT limma, which were near nominal.
+
+    4. AREA's monocyte variance-only advantage remains notable because AREA had BOTH higher power in
+       that regime and lower realized FDR overall.
+
+This issue should be carried forward in every Stage 10 figure or manuscript-level comparison.
+
+It should NOT be "fixed" by altering the already-frozen primary simulation after seeing results.
+
+Any equal-error-rate or recalibrated comparison should be explicitly labeled as a secondary
+sensitivity analysis.
+
+====================================================================================================
+12. WHAT STAGE 10 DOES AND DOES NOT ESTABLISH
+====================================================================================================
+
+Supported:
+
+    - AREA inference is well calibrated under the frozen production simulation.
+    - AREA can robustly detect standard broad directional effects.
+    - sparse/subset effects do not inherently favor AREA.
+    - isolated outliers do not favor AREA.
+    - symmetric dispersion does not favor AREA.
+    - asymmetric mean-preserving multiplicative RNA heterogeneity can strongly favor AREA.
+    - modality matters.
+    - Stage 9's lower-overlap AREA signature cannot be explained by generic variance alone.
+
+Not supported:
+
+    - AREA is universally more powerful than DESeq2 or limma.
+    - AREA is a generic heterogeneity detector.
+    - AREA is a generic outlier detector.
+    - AREA detects any reduction in case/control distribution overlap.
+    - the current covariate-adjusted AREA behaves identically to the original unadjusted AREA.
+    - one simulation geometry proves that Stage 9 empirical genes follow that exact biological
+      mechanism.
+
+====================================================================================================
+13. NEXT STEPS
+====================================================================================================
+
+Immediate:
+    1. Preserve this Stage 10A–D interpretation as the primary production interpretation.
+    2. Do not alter the frozen simulation grid based on these results.
+
+Pre-specified Stage 10 follow-up:
+    3. Run the Gaussian TMT baseline sensitivity if still desired.
+    4. Pre-specify the reduced Stage 10E phenotype-design robustness grid before inspecting its
+       results.
+
+Then Stage 11:
+    5. Compare:
+           A. current covariate-adjusted AREA
+           B. same cohort/universe/inference with intercept-only AREA
+           C. original-paper-like unadjusted empirical AREA where practical
+
+    Stage 11 is essential for determining how much of the difference from the original AREA
+    manuscript reflects:
+        the underlying rank-enrichment concept
+    versus:
+        the covariate-adjusted FWL extension used for ROSMAP.
+
+====================================================================================================
+FINAL INTERPRETIVE STATEMENT
+====================================================================================================
+
+A concise defensible summary is:
+
+    "ROSMAP-calibrated simulations show that covariate-adjusted AREA is not a generic detector of
+    extreme values or distributional heterogeneity. It is most sensitive to disease-associated
+    changes that produce directional or asymmetric redistribution in expression ranks. Conventional
+    mean-based methods generally retain an advantage for sparse subset shifts, isolated outliers,
+    and one-tail amplification at low to moderate penetrance, whereas AREA shows a strong advantage
+    for asymmetric, mean-preserving multiplicative heterogeneity in RNA. Purely symmetric increases
+    in dispersion are essentially undetected by AREA. These results refine the original AREA
+    manuscript's extreme-expression framework and indicate that the lower NCI/AD distributional
+    overlap observed among AREA-predominant ROSMAP features in Stage 9 likely reflects directional
+    rank redistribution rather than generic variance or outlier structure. AREA maintained mean
+    realized FDR near 0.04 across all three modalities; monocyte DESeq2 showed elevated realized FDR
+    (~0.08), so monocyte power comparisons require additional caution."
+
+====================================================================================================
+END
+====================================================================================================
