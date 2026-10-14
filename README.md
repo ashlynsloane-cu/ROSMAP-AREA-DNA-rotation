@@ -97,3 +97,24 @@ and phosphoproteomics. Their validation status differs.
 Participant-level ROSMAP data, sample identifiers, and potentially
 restricted derived results must not be publicly redistributed
 without appropriate authorization.
+
+### Checking required input files
+
+The canonical figures require frozen intermediate analysis results.
+These files are not all distributed with the public source code.
+
+After obtaining any required data through an authorized mechanism,
+place them at the paths recorded in the input manifests and run:
+
+    python3 tools/check_figure_inputs.py
+
+Use `--show-present` to display successfully verified inputs.
+
+The validator checks file presence and SHA-256 integrity. It does
+not download data, grant data access, or reconstruct upstream results.
+
+Additional source files used by individual figures, including the
+Figure 8 protein-evidence input, must also be provisioned where
+specified by the figure runner.
+
+Do not commit restricted data or locally provisioned frozen inputs.
