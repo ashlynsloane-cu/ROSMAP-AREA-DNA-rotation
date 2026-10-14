@@ -1,46 +1,65 @@
 # ROSMAP AREA Analysis
 
-Research code for exploratory development of an AREA-based analysis of ROSMAP molecular and clinical data.
+Computational analysis of ROSMAP transcriptomic, proteomic, and
+clinical data using AREA (Activity-by-Rank Expression Analysis)
+and conventional differential-analysis methods.
+
+This repository contains the finalized eight-figure analysis,
+reproducible figure-generation scripts, methodological documentation,
+and exploratory analyses retained for provenance.
 
 ## Project status
 
-**Active exploratory analysis.**
+**Eight canonical figures finalized and publicly released.**
 
-The ROSMAP analysis cohort, phenotype definitions, and downstream analysis workflow are currently being refined. A final canonical analysis pipeline has **not yet been frozen**.
+The eight canonical figures and their generating scripts have been
+validated against frozen intermediate analysis inputs.
 
-Code generated during method development is retained in `exploratory/` for provenance and reference. These scripts should not be interpreted as a single sequential pipeline, and some represent superseded approaches, diagnostics, sensitivity analyses, or intermediate methodological experiments.
+The figure-generation workflow is documented and versioned.
+This does not mean that every upstream analysis, exploratory
+experiment, or raw-data processing step has been frozen into
+one end-to-end pipeline.
 
-Once the final ROSMAP dataset and analysis decisions are established, the reproducible primary workflow will be separated from this exploratory code and documented here.
+Historical and exploratory code remains available under
+`exploratory/`. Some scripts represent superseded methods,
+diagnostics, or sensitivity analyses rather than components of
+the canonical workflow.
 
-## Repository structure
+## Quick links
 
-```text
-ROSMAP-AREA-DNA-rotation/
-├── README.md
-├── .gitignore
-│
-├── exploratory/
-│   ├── area/             # AREA method development and comparisons
-│   ├── clustering/       # RAE construction, clustering, and k evaluation
-│   ├── config/           # exploratory configuration/input files
-│   ├── data_prep/        # ROSMAP data integration and preprocessing
-│   ├── diagnostics/      # debugging and diagnostic analyses
-│   ├── enrichment/       # exploratory enrichment analyses
-│   ├── pipelines/        # historical/development shell workflows
-│   └── visualization/    # exploratory plotting code
-│
-├── data/                 # local/restricted source and derived data
-└── results/              # locally generated analysis outputs
+- [Eight canonical figures](figures/README.md)
+- [Figure-generating scripts](scripts/multiomic/)
+- [Methods](docs/METHODS.md)
+- [Figure provenance](docs/FIGURE_PROVENANCE.md)
+- [Canonical figure manifest](finalization_audit/repository_freeze/canonical_figure_manifest.csv)
+- [Validated Python requirements](requirements-figures.txt)
 
+## Repository organization
 
+| Directory or file | Purpose |
+|---|---|
+| `figures/` | Eight final figures in PDF/PNG and available SVG formats |
+| `scripts/multiomic/` | Canonical figure-generation scripts and helpers |
+| `workflows/run_main_figures.py` | Figure reproduction runner |
+| `config/` | Frozen-input manifest |
+| `docs/` | Methods and figure provenance |
+| `supplemental/` | Documented supplementary investigations |
+| `exploratory/` | Historical, diagnostic, and exploratory analyses |
+| `tools/` | Input-provisioning validation |
+| `results/` | Analysis outputs; not all are distributed |
+| `data/` | Local or restricted datasets; not all are distributed |
 
-o
+## Software environment
 
+The validated figure-generation environment used Python 3.14.3.
+The recorded package versions are in `requirements-figures.txt`.
 
-qqq
+Install dependencies using:
 
+    python3 -m pip install -r requirements-figures.txt
 
-exit()
+Input data are provisioned separately, subject to the relevant
+data-use permissions.
 
 ## Canonical figure reproduction
 
