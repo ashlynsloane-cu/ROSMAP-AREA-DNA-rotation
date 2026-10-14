@@ -1,0 +1,14 @@
+{
+  "Figure6_formal_comparison": {
+    "path": "data/frozen_inputs/results/stage12_brain_convergence/stage12K_convergence_architecture/CROSS_METHOD_ARCHITECTURE_COMPARISON.tsv",
+    "sha256": "199b58a07109c18ff0bfaad722fe5f5da8587a93f9dfa541031c71bf0c7c8ecb",
+    "bytes": 1571,
+    "release_approved": false
+  },
+  "Figure8_protein_evidence": {
+    "path": "scripts/multiomic/AREA_measured_AD_protein_recovery/all_tested_protein_evidence.csv",
+    "sha256": "93fefd6931788e61f6cb7630473031fa2ab1cd65072e6dbc722ab4f33c2c8360",
+    "bytes": 4699591,
+    "release_approved": false
+  }
+}

@@ -41,3 +41,59 @@ qqq
 
 
 exit()
+
+## Canonical figure reproduction
+
+This repository provides eight canonical figure generators comparing
+rank-based AREA with conventional differential-expression and
+differential-abundance approaches in ROSMAP transcriptomic and
+proteomic analyses.
+
+The canonical scripts and their SHA-256 checksums are registered in
+`finalization_audit/repository_freeze/canonical_figure_manifest.csv`.
+
+### Reproduction
+
+From the repository root, first verify the inputs and scripts:
+
+    python3 workflows/run_main_figures.py --dry-run
+
+To generate the eight figures:
+
+    python3 workflows/run_main_figures.py --all
+
+Use `--output-root` with a new directory for subsequent runs to
+avoid overwriting previous results.
+
+The runner checks frozen input hashes, figure script hashes, and
+additional registered input hashes before running the figures.
+
+### Data availability
+
+Some frozen analysis inputs are stored under `data/frozen_inputs/`.
+This directory is excluded from Git and its contents are not
+authorized for public redistribution.
+
+A fresh clone cannot reproduce the complete figure set without
+provisioning these inputs separately.
+
+This workflow reproduces figures from frozen analysis results,
+not the entire upstream analysis from raw ROSMAP data.
+
+Figure 3 Panel A currently uses nine frozen numeric values embedded
+in its script because the available Stage 9 interpretation text
+does not contain those values.
+
+See `docs/METHODS.md` and `docs/FIGURE_PROVENANCE.md`.
+
+### Supplemental investigations
+
+The `supplemental/` directory documents longitudinal monocyte
+cohort feasibility, Weighted AREA, Stage 12L/M rank trajectories,
+and phosphoproteomics. Their validation status differs.
+
+### Data governance
+
+Participant-level ROSMAP data, sample identifiers, and potentially
+restricted derived results must not be publicly redistributed
+without appropriate authorization.
