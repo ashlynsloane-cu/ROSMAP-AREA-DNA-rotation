@@ -1,0 +1,33 @@
+{
+  "date": "2026-10-14T10:44:23.321437",
+  "changes": [
+    {
+      "figure": "2",
+      "script": "scripts/multiomic/make_figure2_cross_modal.py",
+      "previous_sha256": "8799817344ab9c85065686486e265ae5b106c8fd5e7fcb11a963cf209454ad78",
+      "new_sha256": "b1317cde20d47fe59897c2398e41c58538721e732612f3f7bb6185fd34272309",
+      "reason": "Local frozen-input path portability patch"
+    },
+    {
+      "figure": "5",
+      "script": "scripts/multiomic/make_figure5_covariate_sensitivity_v13.py",
+      "previous_sha256": "83c8c6c2395cc382c584dfe58bf221f472548558fe6cc454826da67b19c7efa9",
+      "new_sha256": "4e740f9aaddec05e286162bb66ec816a0906400d00023f8c052d2e926b522422",
+      "reason": "Local frozen-input path portability patch"
+    },
+    {
+      "figure": "6",
+      "script": "scripts/multiomic/make_figure6_crossomic_convergence_canonical.py",
+      "previous_sha256": "7cbe394bdcdb0a56cb933494bdc358461c6b2378cc746f3cb35d86a4a6174494",
+      "new_sha256": "370d47cf7e002e9d2bafd27081c60f88bf25ed52ccdadd798d62c84d5bea0502",
+      "reason": "Local frozen-input path portability patch"
+    },
+    {
+      "figure": "7",
+      "script": "scripts/multiomic/make_figure7_biological_programs_and_genes-3.py",
+      "previous_sha256": "9182a0a22b3c2ada81d9e535eed1512be965566f6b1dcc0876d89a87139d4c81",
+      "new_sha256": "c5bf7fdcf9769c64695d7875fe63a482b83b13c1501900ec5abadc05152f0009",
+      "reason": "Local frozen-input path portability patch"
+    }
+  ]
+}
