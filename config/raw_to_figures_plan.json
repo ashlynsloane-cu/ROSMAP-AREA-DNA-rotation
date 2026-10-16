@@ -1,0 +1,127 @@
+{
+  "schema_version": 1,
+  "stages": [
+    {
+      "id": "rna_preprocess",
+      "depends_on": [],
+      "requires": [],
+      "produces": [],
+      "command": null,
+      "blocked_reason": "Unverified raw-data producer; configure only after checking actual input contract"
+    },
+    {
+      "id": "tmt_preprocess",
+      "depends_on": [],
+      "requires": [],
+      "produces": [],
+      "command": null,
+      "blocked_reason": "Unverified raw-data producer; configure only after checking actual input contract"
+    },
+    {
+      "id": "monocyte_preprocess",
+      "depends_on": [],
+      "requires": [],
+      "produces": [],
+      "command": null,
+      "blocked_reason": "Unverified raw-data producer; configure only after checking actual input contract"
+    },
+    {
+      "id": "metadata_manifests",
+      "depends_on": [
+        "rna_preprocess",
+        "tmt_preprocess",
+        "monocyte_preprocess"
+      ],
+      "requires": [],
+      "produces": [],
+      "command": null,
+      "blocked_reason": "Unverified raw-data producer; configure only after checking actual input contract"
+    },
+    {
+      "id": "area_models",
+      "depends_on": [
+        "metadata_manifests"
+      ],
+      "requires": [],
+      "produces": [],
+      "command": null,
+      "blocked_reason": "Unverified raw-data producer; configure only after checking actual input contract"
+    },
+    {
+      "id": "conventional_models",
+      "depends_on": [
+        "metadata_manifests"
+      ],
+      "requires": [],
+      "produces": [],
+      "command": null,
+      "blocked_reason": "Unverified raw-data producer; configure only after checking actual input contract"
+    },
+    {
+      "id": "stage7",
+      "depends_on": [
+        "area_models",
+        "conventional_models"
+      ],
+      "requires": [],
+      "produces": [],
+      "command": null,
+      "blocked_reason": "Unverified raw-data producer; configure only after checking actual input contract"
+    },
+    {
+      "id": "stage9",
+      "depends_on": [
+        "stage7"
+      ],
+      "requires": [],
+      "produces": [],
+      "command": null,
+      "blocked_reason": "Unverified raw-data producer; configure only after checking actual input contract"
+    },
+    {
+      "id": "stage10",
+      "depends_on": [
+        "stage9"
+      ],
+      "requires": [],
+      "produces": [],
+      "command": null,
+      "blocked_reason": "Unverified raw-data producer; configure only after checking actual input contract"
+    },
+    {
+      "id": "stage11_sensitivity",
+      "depends_on": [
+        "area_models"
+      ],
+      "requires": [],
+      "produces": [],
+      "command": null,
+      "blocked_reason": "Unverified raw-data producer; configure only after checking actual input contract"
+    },
+    {
+      "id": "stage12",
+      "depends_on": [
+        "area_models",
+        "conventional_models",
+        "stage11_sensitivity"
+      ],
+      "requires": [],
+      "produces": [],
+      "command": null,
+      "blocked_reason": "Unverified raw-data producer; configure only after checking actual input contract"
+    },
+    {
+      "id": "figures",
+      "depends_on": [
+        "stage7",
+        "stage9",
+        "stage10",
+        "stage12"
+      ],
+      "requires": [],
+      "produces": [],
+      "command": null,
+      "blocked_reason": "Unverified raw-data producer; configure only after checking actual input contract"
+    }
+  ]
+}

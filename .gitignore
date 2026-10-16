@@ -233,3 +233,10 @@ __marimo__/
 
 # Local enrichment cache
 .gmt_cache/
+
+# Local reproducibility artifacts
+*.bak
+.venv*/
+*.pyc
+__pycache__/
+ROSMAP-authorized-data/
