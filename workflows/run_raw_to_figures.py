@@ -60,13 +60,12 @@ def run(cfg, roots, execute=False, target=None):
     check_config(cfg)
     output = roots["output_root"]
     repo = roots["release_root"]
-    restricted = [roots["raw_root"], roots["output_root"]]
     if any(output == x or x in output.parents or output in x.parents for x in (repo, roots["raw_root"])):
         raise ValueError("Output root may not contain or equal release/raw roots")
     if repo == output or repo in output.parents:
         raise ValueError("Output root must be outside release repository")
     stages = cfg["stages"]
-    result = {"schema_version": 1, "created_utc": dt.datetime.now(dt.timezone.utc).isoformat(),
+    result = {"schema_version": 2, "created_utc": dt.datetime.now(dt.timezone.utc).isoformat(),
               "mode": "execute" if execute else "preflight", "stages": [],
               "raw_to_figure_complete": False}
     passed = set()
@@ -144,6 +143,7 @@ def main():
     ap.add_argument("--output-root", type=Path, required=True)
     ap.add_argument("--plan", type=Path, default=Path("config/raw_to_figures_plan.json"))
     ap.add_argument("--execute", action="store_true")
+    ap.add_argument("--through", choices=STAGE_IDS, help="Run through this stage; incomplete final pipeline remains explicitly reported")
     a = ap.parse_args()
     repo = a.release_root.expanduser().resolve()
     raw = a.raw_root.expanduser().resolve()
@@ -152,13 +152,20 @@ def main():
         ap.error("Release root and authorized raw-root directories must exist")
     plan = a.plan if a.plan.is_absolute() else repo / a.plan
     data = json.loads(plan.read_text())
-    result = run(data, {"release_root": repo, "raw_root": raw, "output_root": out}, a.execute)
+    selected = set(STAGE_IDS[:STAGE_IDS.index(a.through)+1]) if a.through else None
+    result = run(data, {"release_root": repo, "raw_root": raw, "output_root": out}, a.execute, selected)
     for entry in result["stages"]:
         print(f"{entry['id']:<25} {entry['status']:<8} {entry['reason'] or ''}")
     print("RAW_TO_FIGURE_COMPLETE:", result["raw_to_figure_complete"])
     if a.execute:
         print("Report:", out / "raw_to_figures_report.json")
-    if not result["raw_to_figure_complete"]:
+    if a.through:
+        selected_rows = result["stages"]
+        complete = bool(a.execute) and all(row["status"] == "PASS" for row in selected_rows)
+        print("SELECTED_STAGES_COMPLETE:", complete)
+        if not complete:
+            sys.exit(2)
+    elif not result["raw_to_figure_complete"]:
         sys.exit(2)
 
 
