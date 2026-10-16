@@ -36,6 +36,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 import json
 import math
 import shutil
@@ -48,8 +49,8 @@ import pandas as pd
 from scipy.stats import binomtest
 
 
-ROOT = Path.home() / "rosmap_multiomic_slurm"
-RSCRIPT = Path("/home/assl5508/envs/rosmap-r/bin/Rscript")
+ROOT = Path(os.environ.get("ROSMAP_ANALYSIS_ROOT", str(Path.cwd()))).expanduser().resolve()
+RSCRIPT = Path(os.environ.get("ROSMAP_RSCRIPT", "Rscript"))
 
 AREA_RUNNER = ROOT / "scripts/multiomic/run_regular_area_binary.py"
 DESEQ_RUNNER = ROOT / "scripts/multiomic/run_rna_deseq2_binary.R"
@@ -57,16 +58,12 @@ LIMMA_RUNNER = ROOT / "scripts/multiomic/run_tmt_limma_binary.R"
 
 MANIFEST_ROOT = ROOT / "results/multiomic_analysis_manifests"
 
-MONO_RAW = Path(
-    "/home/assl5508/rosmap_monocyte_cross_tissue/"
-    "analysis_inputs/monocyte_primary_554/model_inputs/"
-    "monocyte_raw_counts_deseq2_554.tsv"
-)
-MONO_NORM = Path(
-    "/home/assl5508/rosmap_monocyte_cross_tissue/"
-    "analysis_inputs/monocyte_primary_554/model_inputs/"
-    "monocyte_sizefactor_normalized_counts_area_554.tsv"
-)
+MONO_RAW = Path(os.environ.get(
+    "ROSMAP_MONOCYTE_RAW", str(ROOT / "data/monocyte/monocyte_raw_counts_deseq2_554.tsv")
+)).expanduser().resolve()
+MONO_NORM = Path(os.environ.get(
+    "ROSMAP_MONOCYTE_EXPRESSION", str(ROOT / "data/monocyte/monocyte_sizefactor_normalized_counts_area_554.tsv")
+)).expanduser().resolve()
 
 DLPFC_RAW_RDS = (
     ROOT

@@ -17,7 +17,7 @@ import sys
 STAGE_IDS = ("rna_preprocess", "tmt_preprocess", "monocyte_preprocess", "metadata_manifests", "area_models", "conventional_models",
              "stage7", "stage9", "stage10", "stage11_sensitivity",
              "stage12", "figures")
-DANGEROUS = re.compile(r"(?:/home/assl5508/|/Users/ashlynsloane/|stage11_offline_|data/frozen_inputs)")
+DANGEROUS = re.compile(r"(?:/home/[^/]+/|/Users/[^/]+/|stage11_offline_|data/frozen_inputs)")
 
 
 def resolve_path(s, roots):

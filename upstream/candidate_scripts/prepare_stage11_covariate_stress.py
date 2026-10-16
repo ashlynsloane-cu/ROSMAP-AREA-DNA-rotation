@@ -1,22 +1,16 @@
 #!/usr/bin/env python3
+import os
 
 from pathlib import Path
 import json
 
 import pandas as pd
-
-
-ROOT = Path.home() / "rosmap_multiomic_slurm"
-
+ROOT = Path(os.environ["ROSMAP_ANALYSIS_ROOT"]).expanduser().resolve()
 OUT = ROOT / "results/stage11_covariate_stress"
 
 PURE = "PURE_1_NCI_2_MCI_4_AD_exclude_3_5_6"
 
-MONO_EXPR = Path(
-    "/home/assl5508/rosmap_monocyte_cross_tissue/"
-    "analysis_inputs/monocyte_primary_554/model_inputs/"
-    "monocyte_sizefactor_normalized_counts_area_554.tsv"
-)
+MONO_EXPR = Path(os.environ["ROSMAP_MONOCYTE_EXPRESSION"]).expanduser().resolve()
 
 DLPFC_EXPR = (
     ROOT
