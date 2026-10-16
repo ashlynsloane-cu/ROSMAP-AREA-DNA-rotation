@@ -4,16 +4,12 @@
 #SBATCH --cpus-per-task=2
 #SBATCH --mem=24G
 #SBATCH --time=08:00:00
-#SBATCH --output=/home/assl5508/rosmap_multiomic_slurm/results/stage10_multimodal_simulations/slurm_logs/stage10_%A_%a.out
-#SBATCH --error=/home/assl5508/rosmap_multiomic_slurm/results/stage10_multimodal_simulations/slurm_logs/stage10_%A_%a.err
 
 set -euo pipefail
 
-cd /home/assl5508/rosmap_multiomic_slurm
+cd "${ROSMAP_ANALYSIS_ROOT:?Set ROSMAP_ANALYSIS_ROOT to the authorized analysis directory}"
 
-module purge
-module load python/3.11.15
-source /home/assl5508/venvs/rosmap-monocyte/bin/activate
+# Activate a compatible Python/R environment before invoking sbatch.
 
 echo "============================================================"
 echo "Stage 10 v5 production"

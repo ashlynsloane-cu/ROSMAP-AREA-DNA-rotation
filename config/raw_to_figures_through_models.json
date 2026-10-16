@@ -1,0 +1,216 @@
+{
+  "schema_version": 1,
+  "stages": [
+    {
+      "id": "rna_preprocess",
+      "depends_on": [],
+      "requires": [
+        "{raw_root}/rna/ROSMAP_AREA_normalized_counts_all_samples.csv"
+      ],
+      "produces": [
+        "{output_root}/input_receipts/rna_preprocess.json"
+      ],
+      "command": [
+        "python3",
+        "{release_root}/workflows/validate_input_stage.py",
+        "--source",
+        "{raw_root}/rna/ROSMAP_AREA_normalized_counts_all_samples.csv",
+        "--receipt",
+        "{output_root}/input_receipts/rna_preprocess.json"
+      ],
+      "blocked_reason": null
+    },
+    {
+      "id": "tmt_preprocess",
+      "depends_on": [],
+      "requires": [
+        "{raw_root}/tmt/C2.median_polish_corrected_log2(abundanceRatioCenteredOnMedianOfBatchMediansPerProtein)-8817x400.csv"
+      ],
+      "produces": [
+        "{output_root}/input_receipts/tmt_preprocess.json"
+      ],
+      "command": [
+        "python3",
+        "{release_root}/workflows/validate_input_stage.py",
+        "--source",
+        "{raw_root}/tmt/C2.median_polish_corrected_log2(abundanceRatioCenteredOnMedianOfBatchMediansPerProtein)-8817x400.csv",
+        "--receipt",
+        "{output_root}/input_receipts/tmt_preprocess.json"
+      ],
+      "blocked_reason": null
+    },
+    {
+      "id": "monocyte_preprocess",
+      "depends_on": [],
+      "requires": [
+        "{raw_root}/monocyte/monocyte_sizefactor_normalized_counts_area_554.tsv"
+      ],
+      "produces": [
+        "{output_root}/input_receipts/monocyte_preprocess.json"
+      ],
+      "command": [
+        "python3",
+        "{release_root}/workflows/validate_input_stage.py",
+        "--source",
+        "{raw_root}/monocyte/monocyte_sizefactor_normalized_counts_area_554.tsv",
+        "--receipt",
+        "{output_root}/input_receipts/monocyte_preprocess.json"
+      ],
+      "blocked_reason": null
+    },
+    {
+      "id": "metadata_manifests",
+      "depends_on": [
+        "rna_preprocess",
+        "tmt_preprocess",
+        "monocyte_preprocess"
+      ],
+      "requires": [
+        "{raw_root}/metadata/ROSMAP_MULTIOMIC_FINAL_ANALYSIS_MATRIX_v2.csv",
+        "{raw_root}/metadata/monocyte_primary_554_metadata_with_sampling_age.tsv",
+        "{raw_root}/metadata/ROSMAP_RNAseq_master_metadata_all_samples.csv",
+        "{raw_root}/metadata/TMT_modeling_metadata_400.csv",
+        "{raw_root}/metadata/ROSMAP_harmonized_participant_phenotypes.tsv"
+      ],
+      "produces": [
+        "{output_root}/manifests/manifest_index.csv"
+      ],
+      "command": [
+        "python3",
+        "{release_root}/upstream/portable_scripts/build_analysis_manifests.py",
+        "--analysis-matrix",
+        "{raw_root}/metadata/ROSMAP_MULTIOMIC_FINAL_ANALYSIS_MATRIX_v2.csv",
+        "--monocyte",
+        "{raw_root}/metadata/monocyte_primary_554_metadata_with_sampling_age.tsv",
+        "--dlpfc",
+        "{raw_root}/metadata/ROSMAP_RNAseq_master_metadata_all_samples.csv",
+        "--tmt",
+        "{raw_root}/metadata/TMT_modeling_metadata_400.csv",
+        "--clinical",
+        "{raw_root}/metadata/ROSMAP_harmonized_participant_phenotypes.tsv",
+        "--outdir",
+        "{output_root}/manifests"
+      ],
+      "blocked_reason": null
+    },
+    {
+      "id": "area_models",
+      "depends_on": [
+        "metadata_manifests"
+      ],
+      "requires": [
+        "{output_root}/manifests/manifest_index.csv",
+        "{raw_root}/rna/ROSMAP_AREA_normalized_counts_all_samples.csv",
+        "{raw_root}/monocyte/monocyte_sizefactor_normalized_counts_area_554.tsv",
+        "{raw_root}/tmt/C2.median_polish_corrected_log2(abundanceRatioCenteredOnMedianOfBatchMediansPerProtein)-8817x400.csv"
+      ],
+      "produces": [
+        "{output_root}/models/fresh_area_stage_complete.json"
+      ],
+      "command": [
+        "python3",
+        "{release_root}/workflows/run_fresh_area_stage.py",
+        "--repo",
+        "{release_root}",
+        "--raw-root",
+        "{raw_root}",
+        "--output-root",
+        "{output_root}"
+      ],
+      "blocked_reason": null
+    },
+    {
+      "id": "conventional_models",
+      "depends_on": [
+        "metadata_manifests"
+      ],
+      "requires": [
+        "{output_root}/manifests/manifest_index.csv",
+        "{raw_root}/rna/ROSMAP_raw_counts_global_gene_universe.rds"
+      ],
+      "produces": [
+        "{output_root}/models/conventional/fresh_conventional_models.json"
+      ],
+      "command": [
+        "python3",
+        "{release_root}/workflows/run_fresh_conventional_batch.py",
+        "--manifests-root",
+        "{output_root}/manifests",
+        "--rna-counts",
+        "{raw_root}/rna/ROSMAP_raw_counts_global_gene_universe.rds",
+        "--tmt-expression",
+        "{raw_root}/tmt/C2.median_polish_corrected_log2(abundanceRatioCenteredOnMedianOfBatchMediansPerProtein)-8817x400.csv",
+        "--outdir",
+        "{output_root}/models/conventional",
+        "--execute"
+      ],
+      "blocked_reason": null
+    },
+    {
+      "id": "stage7",
+      "depends_on": [
+        "area_models",
+        "conventional_models"
+      ],
+      "requires": [],
+      "produces": [],
+      "command": null,
+      "blocked_reason": "Unverified raw-data producer; configure only after checking actual input contract"
+    },
+    {
+      "id": "stage9",
+      "depends_on": [
+        "stage7"
+      ],
+      "requires": [],
+      "produces": [],
+      "command": null,
+      "blocked_reason": "Unverified raw-data producer; configure only after checking actual input contract"
+    },
+    {
+      "id": "stage10",
+      "depends_on": [
+        "stage9"
+      ],
+      "requires": [],
+      "produces": [],
+      "command": null,
+      "blocked_reason": "Unverified raw-data producer; configure only after checking actual input contract"
+    },
+    {
+      "id": "stage11_sensitivity",
+      "depends_on": [
+        "area_models"
+      ],
+      "requires": [],
+      "produces": [],
+      "command": null,
+      "blocked_reason": "Unverified raw-data producer; configure only after checking actual input contract"
+    },
+    {
+      "id": "stage12",
+      "depends_on": [
+        "area_models",
+        "conventional_models",
+        "stage11_sensitivity"
+      ],
+      "requires": [],
+      "produces": [],
+      "command": null,
+      "blocked_reason": "Unverified raw-data producer; configure only after checking actual input contract"
+    },
+    {
+      "id": "figures",
+      "depends_on": [
+        "stage7",
+        "stage9",
+        "stage10",
+        "stage12"
+      ],
+      "requires": [],
+      "produces": [],
+      "command": null,
+      "blocked_reason": "Unverified raw-data producer; configure only after checking actual input contract"
+    }
+  ]
+}

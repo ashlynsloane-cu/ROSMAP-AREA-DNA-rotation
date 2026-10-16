@@ -233,3 +233,13 @@ __marimo__/
 
 # Local enrichment cache
 .gmt_cache/
+
+# Local reproducibility artifacts
+*.bak
+.venv*/
+*.pyc
+__pycache__/
+ROSMAP-authorized-data/
+
+# Local Figure 8 evidence input; disclosure review required
+/scripts/multiomic/AREA_measured_AD_protein_recovery/all_tested_protein_evidence.csv
